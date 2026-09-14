@@ -5,5 +5,7 @@ Summary: AI-powered codebase intelligence assistant
 Requires-Python: >=3.12
 Requires-Dist: fastapi
 Requires-Dist: uvicorn[standard]
+Requires-Dist: pydantic-settings
 Provides-Extra: dev
 Requires-Dist: pytest; extra == "dev"
+Requires-Dist: httpx2; extra == "dev"
