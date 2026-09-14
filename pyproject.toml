@@ -1,0 +1,16 @@
+[project]
+name = "codelens-ai"
+version = "0.1.0"
+description = "AI-powered codebase intelligence assistant"
+requires-python = ">=3.12"
+
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "httpx2",
+]
