@@ -1,0 +1,12 @@
+{
+  "repositories": {
+    "00000000-0000-0000-0000-000000000001": {
+      "files": {
+        "scripts/test_repository.txt": {
+          "hash": "0f5b054db7cbc4cb69c61b27e74ff16f9f04fa08531c0fb5c62c853dd20ca1aa",
+          "indexed": true
+        }
+      }
+    }
+  }
+}

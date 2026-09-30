@@ -1,0 +1,12 @@
+{
+  "repositories": {
+    "repo-123": {
+      "files": {
+        "auth.txt": {
+          "hash": "213e4f82fc8f861bbc497f27c3eac7464db200c8ac93ced7e741445911247d8f",
+          "indexed": true
+        }
+      }
+    }
+  }
+}

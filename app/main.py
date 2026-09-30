@@ -1,3 +1,6 @@
+# This file creates the FastAPI application
+# and defines the API entry point for CodeLens AI.
+
 from fastapi import FastAPI
 from app.core.config import settings
 

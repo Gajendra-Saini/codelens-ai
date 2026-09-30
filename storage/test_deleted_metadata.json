@@ -1,0 +1,16 @@
+{
+  "repositories": {
+    "778f00e0-6067-4009-a61c-3a4402874ce2": {
+      "files": {
+        "auth.txt": {
+          "hash": "auth-hash",
+          "indexed": true
+        },
+        "payment.txt": {
+          "hash": "payment-hash",
+          "indexed": true
+        }
+      }
+    }
+  }
+}

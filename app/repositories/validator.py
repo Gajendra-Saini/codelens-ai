@@ -1,3 +1,6 @@
+# This file validates whether a GitHub repository URL is valid.
+# It is the first validation step after the user provides a repository URL.
+
 from urllib.parse import urlparse
 
 
