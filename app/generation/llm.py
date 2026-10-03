@@ -8,9 +8,9 @@ class LLMService:
     def __init__(
         self,
         model: str = "gemini-3.7-flash",
+        client=None,
     ):
-
-        self.client = genai.Client(
+        self.client = client or genai.Client(
             api_key=settings.gemini_api_key
         )
 

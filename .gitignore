@@ -5,3 +5,7 @@ __pycache__/
 *.pyc
 .DS_Store
 *.egg-info/
+
+qdrant_storage/
+storage/repositories/
+storage/index_metadata.json

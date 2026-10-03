@@ -1,3 +1,7 @@
+# This file handles hybrid retrieval.
+# It combines dense vector search and BM25 search,
+# fuses their rankings with RRF, and reranks candidates.
+
 import re
 
 from rank_bm25 import BM25Okapi
@@ -23,13 +27,49 @@ class Retriever:
         self.rrf = rrf or ReciprocalRankFusion()
         self.reranker = reranker or CrossEncoderReranker()
 
+        # Create a stable ID for every chunk.
+        #
+        # Format:
+        # ("path/to/file.txt", chunk_index)
+
+        self.chunk_ids = []
+
+        path_counters = {}
+
+        for chunk in self.chunks:
+            path = str(chunk.path)
+
+            chunk_index = path_counters.get(
+                path,
+                0,
+            )
+
+            chunk_id = (
+                path,
+                chunk_index,
+            )
+
+            self.chunk_ids.append(chunk_id)
+
+            path_counters[path] = (
+                chunk_index + 1
+            )
+
+        self.chunk_lookup = {
+            chunk_id: chunk
+            for chunk_id, chunk in zip(
+                self.chunk_ids,
+                self.chunks,
+            )
+        }
+
         # -----------------------------
         # BM25 index
         # -----------------------------
 
         self.documents = [
             chunk.content
-            for chunk in chunks
+            for chunk in self.chunks
         ]
 
         tokenized_documents = [
@@ -66,7 +106,9 @@ class Retriever:
     ):
 
         query_vector = (
-            self.embedding_service.embed_text(query)
+            self.embedding_service.embed_text(
+                query
+            )
         )
 
         return self.vector_store.search(
@@ -100,7 +142,7 @@ class Retriever:
 
         return [
             {
-                "id": chunk_id,
+                "id": self.chunk_ids[chunk_id],
                 "score": scores[chunk_id],
                 "chunk": self.chunks[chunk_id],
             }
@@ -126,7 +168,10 @@ class Retriever:
         )
 
         dense_ids = [
-            result.id
+            (
+                result.payload["path"],
+                result.payload["chunk_index"],
+            )
             for result in dense_results
         ]
 
@@ -142,7 +187,7 @@ class Retriever:
             for result in bm25_results
         ]
 
-        # 3. RRF
+        # 3. Reciprocal Rank Fusion
 
         rrf_results = self.rrf.fuse(
             [
@@ -157,7 +202,7 @@ class Retriever:
         candidates = [
             (
                 chunk_id,
-                self.chunks[chunk_id],
+                self.chunk_lookup[chunk_id],
             )
             for chunk_id, score in rrf_results
         ]
