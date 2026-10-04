@@ -10,7 +10,10 @@ class EmbeddingService:
         self,
         model_name: str = "all-MiniLM-L6-v2",
     ):
-        self.model = SentenceTransformer(model_name)
+        self.model = SentenceTransformer(
+            model_name,
+            device="cpu",
+        )
 
     def embed_text(self, text: str):
 
