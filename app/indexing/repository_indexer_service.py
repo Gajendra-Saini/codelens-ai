@@ -17,6 +17,7 @@ class RepositoryIndexingService:
         self,
         repository_loader=None,
         repository_indexer=None,
+        embedding_service=None,
     ):
         # Repository loader
         self.repository_loader = (
@@ -45,7 +46,10 @@ class RepositoryIndexingService:
         chunker = TextChunker()
 
         # Embeddings
-        embedding_service = EmbeddingService()
+        embedding_service = (
+            embedding_service
+            or EmbeddingService()
+        )
 
         # Qdrant
         vector_store = QdrantVectorStore(

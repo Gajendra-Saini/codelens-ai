@@ -1,7 +1,3 @@
-# This class handles cloning/updating repositories,
-# discovering supported files recursively,
-# and converting files into CodeFile objects.
-
 from pathlib import Path
 import subprocess
 import shutil
@@ -11,6 +7,10 @@ from uuid import UUID, uuid5
 from app.repositories.models import CodeFile, Repository
 from app.repositories.validator import is_valid_git_url
 from app.repositories.languages import LANGUAGE_BY_EXTENSION
+from app.core.exceptions import (
+    InvalidRepositoryUrlError,
+    RepositoryCloneError,
+)
 
 
 IGNORED_DIRECTORIES = {
@@ -28,20 +28,26 @@ SUPPORTED_EXTENSIONS = {
 }
 
 
-class RepositoryLoadError(Exception):
-    pass
-
-
 class RepositoryLoader:
 
-    def __init__(self, storage_dir: str = "storage"):
-        self.storage_dir = Path(storage_dir)
+    def __init__(
+        self,
+        storage_dir: str = "storage",
+    ):
+        self.storage_dir = Path(
+            storage_dir
+        )
+
         self.storage_dir.mkdir(
             parents=True,
             exist_ok=True,
         )
 
-    def _normalize_repo_url(self, repo_url: str) -> str:
+    def _normalize_repo_url(
+        self,
+        repo_url: str,
+    ) -> str:
+
         parsed = urlparse(repo_url)
 
         path = parsed.path.strip("/")
@@ -60,32 +66,56 @@ class RepositoryLoader:
             )
         )
 
-    def _get_repository_id(self, repo_url: str) -> UUID:
-        normalized_url = self._normalize_repo_url(repo_url)
+    def _get_repository_id(
+        self,
+        repo_url: str,
+    ) -> UUID:
+
+        normalized_url = (
+            self._normalize_repo_url(
+                repo_url
+            )
+        )
 
         return uuid5(
-            UUID("6ba7b810-9dad-11d1-80b4-00c04fd430c8"),
+            UUID(
+                "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
+            ),
             normalized_url,
         )
 
-    def clone(self, repo_url: str):
+    def clone(
+        self,
+        repo_url: str,
+    ):
 
-        if not is_valid_git_url(repo_url):
-            raise RepositoryLoadError(
-                "Invalid GitHub repository URL"
+        if not is_valid_git_url(
+            repo_url
+        ):
+            raise InvalidRepositoryUrlError(
+                "Invalid GitHub repository URL."
             )
 
-        repo_id = self._get_repository_id(repo_url)
+        repo_id = (
+            self._get_repository_id(
+                repo_url
+            )
+        )
 
-        destination_path = self.storage_dir / str(repo_id)
+        destination_path = (
+            self.storage_dir
+            / str(repo_id)
+        )
 
-        # Repository already exists locally
         if destination_path.exists():
 
-            if not (destination_path / ".git").exists():
-                raise RepositoryLoadError(
-                    f"Repository directory exists but is not "
-                    f"a Git repository: {destination_path}"
+            if not (
+                destination_path / ".git"
+            ).exists():
+
+                raise RepositoryCloneError(
+                    "Repository directory exists "
+                    "but is not a Git repository."
                 )
 
             result = subprocess.run(
@@ -101,12 +131,11 @@ class RepositoryLoader:
             )
 
             if result.returncode != 0:
-                raise RepositoryLoadError(
-                    f"Failed to update repository: "
-                    f"{result.stderr.strip()}"
+
+                raise RepositoryCloneError(
+                    "Failed to update repository."
                 )
 
-        # Repository does not exist locally
         else:
 
             result = subprocess.run(
@@ -127,9 +156,8 @@ class RepositoryLoader:
                     ignore_errors=True,
                 )
 
-                raise RepositoryLoadError(
-                    f"Failed to clone repository: "
-                    f"{result.stderr.strip()}"
+                raise RepositoryCloneError(
+                    "Failed to clone repository."
                 )
 
         return Repository(
@@ -171,12 +199,16 @@ class RepositoryLoader:
 
         size = file_path.stat().st_size
 
-        language = LANGUAGE_BY_EXTENSION.get(
-            file_path.suffix.lower()
+        language = (
+            LANGUAGE_BY_EXTENSION.get(
+                file_path.suffix.lower()
+            )
         )
 
-        relative_path = file_path.relative_to(
-            repository.path
+        relative_path = (
+            file_path.relative_to(
+                repository.path
+            )
         )
 
         return CodeFile(
@@ -189,9 +221,9 @@ class RepositoryLoader:
 
     def build_code_files(
         self,
-        repository: Repository,
-        file_paths: list[Path],
-    ) -> list[CodeFile]:
+        repository,
+        file_paths,
+    ):
 
         return [
             self.build_code_file(

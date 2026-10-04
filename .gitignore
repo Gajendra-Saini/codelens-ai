@@ -9,3 +9,6 @@ __pycache__/
 qdrant_storage/
 storage/repositories/
 storage/index_metadata.json
+
+frontend/node_modules/
+frontend/dist/
