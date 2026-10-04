@@ -35,27 +35,16 @@ from app.indexing.repository_indexer_service import (
 router = APIRouter()
 
 
-@router.post(
-    "/repositories/index"
-)
+@router.post("/repositories/index")
 def index_repository(
     request: RepositoryIndexRequest,
     service: RepositoryIndexingService = Depends(
         get_repository_indexing_service
     ),
-    retrieval_service = Depends(
-        get_retrieval_service
-    ),
 ):
-
     try:
-
         result = service.index_repository(
             request.repo_url
-        )
-
-        retrieval_service.invalidate_repository(
-            result["repository_id"]
         )
 
         return result
@@ -72,6 +61,7 @@ def index_repository(
             detail=str(exc),
         ) from exc
 
+
 @router.post("/query")
 def query_repository(
     request: QueryRequest,
@@ -79,25 +69,19 @@ def query_repository(
         get_query_service
     ),
 ):
-
     try:
-
         return query_service.answer(
             request.question
         )
 
     except RepositoryNotFoundError as exc:
-
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(exc),
         ) from exc
 
     except GenerationUnavailableError as exc:
-
         raise HTTPException(
-            status_code=(
-                status.HTTP_503_SERVICE_UNAVAILABLE
-            ),
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail=str(exc),
         ) from exc
