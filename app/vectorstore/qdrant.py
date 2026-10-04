@@ -3,11 +3,13 @@
 # and removes vectors belonging to a specific file.
 
 from qdrant_client import QdrantClient
+
 from qdrant_client.models import (
     Distance,
     FieldCondition,
     Filter,
     MatchValue,
+    PayloadSchemaType,
     PointStruct,
     VectorParams,
 )
@@ -39,6 +41,19 @@ class QdrantVectorStore:
                     distance=Distance.COSINE,
                 ),
             )
+
+        # Create indexes for fields used in filtered operations.
+        self.client.create_payload_index(
+            collection_name=self.collection_name,
+            field_name="repository_id",
+            field_schema=PayloadSchemaType.KEYWORD,
+        )
+
+        self.client.create_payload_index(
+            collection_name=self.collection_name,
+            field_name="path",
+            field_schema=PayloadSchemaType.KEYWORD,
+        )
 
     def add_points(
         self,
