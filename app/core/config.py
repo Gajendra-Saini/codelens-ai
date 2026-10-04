@@ -13,6 +13,10 @@ class Settings(BaseSettings):
 
     gemini_api_key: str
 
+    qdrant_url: str = "http://localhost:6333"
+
+    qdrant_api_key: str | None = None
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

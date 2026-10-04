@@ -12,6 +12,8 @@ from qdrant_client.models import (
     VectorParams,
 )
 
+from app.core.config import settings
+
 
 class QdrantVectorStore:
 
@@ -19,14 +21,12 @@ class QdrantVectorStore:
         self,
         collection_name: str = "codelens_chunks",
         vector_size: int = 384,
-        host: str = "localhost",
-        port: int = 6333,
     ):
         self.collection_name = collection_name
 
         self.client = QdrantClient(
-            host=host,
-            port=port,
+            url=settings.qdrant_url,
+            api_key=settings.qdrant_api_key,
         )
 
         if not self.client.collection_exists(
